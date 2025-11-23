@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laboratorio de Filtros</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 24px;
+            padding: 40px;
+            max-width: 900px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 {
+            color: #667eea;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1rem;
+        }
+
+        .editor-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .canvas-container {
+            position: relative;
+            background: #f0f0f0;
+            border-radius: 12px;
+            overflow: hidden;
+            aspect-ratio: 4/3;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        canvas {
+            max-width: 100%;
+            max-height: 100%;
+            display: block;
+        }
+
+        .upload-prompt {
+            text-align: center;
+            color: #999;
+            padding: 20px;
+        }
+
+        .upload-prompt svg {
+            width: 64px;
+            height: 64px;
+            margin-bottom: 10px;
+            opacity: 0.5;
+        }
+
+        .controls {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .control-group {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .control-group:hover {
+            background: #e9ecef;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .control-label {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .control-value {
+            background: #667eea;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            height: 6px;
+            border-radius: 5px;
+            background: #ddd;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #667eea;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        input[type="range"]::-webkit-slider-thumb:hover {
+            background: #764ba2;
+            transform: scale(1.2);
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #667eea;
+            cursor: pointer;
+            border: none;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        button {
+            flex: 1;
+            min-width: 120px;
+            padding: 14px 28px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #e9ecef;
+            color: #333;
+        }
+
+        .btn-secondary:hover {
+            background: #dee2e6;
+        }
+
+        .btn-success {
+            background: #10b981;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #059669;
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        .presets {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 10px;
+            margin-top: 30px;
+        }
+
+        .preset-btn {
+            padding: 12px;
+            background: white;
+            border: 2px solid #667eea;
+            color: #667eea;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: auto;
+        }
+
+        .preset-btn:hover {
+            background: #667eea;
+            color: white;
+            transform: scale(1.05);
+        }
+
+        .info-box {
+            background: #e0e7ff;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            border-left: 4px solid #667eea;
+        }
+
+        .info-box h3 {
+            color: #667eea;
+            margin-bottom: 8px;
+            font-size: 1.1rem;
+        }
+
+        .info-box p {
+            color: #555;
+            line-height: 1.6;
+            font-size: 0.95rem;
+        }
+
+        .signature {
+            text-align: center;
+            margin-top: 25px;
+            padding: 20px;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+            border-radius: 12px;
+            border: 2px dashed rgba(102, 126, 234, 0.3);
+        }
+
+        .signature .title {
+            font-size: 0.85rem;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .signature .brand {
+            font-size: 1.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: 1px;
+        }
+
+        .signature .sparkle {
+            display: inline-block;
+            animation: sparkle 2s ease-in-out infinite;
+        }
+
+        @keyframes sparkle {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.2); opacity: 0.8; }
+        }
+
+        @media (max-width: 768px) {
+            .editor-section {
+                grid-template-columns: 1fr;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+
+            .container {
+                padding: 25px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎨 Laboratorio de Filtros</h1>
+        <p class="subtitle">Experimenta con filtros digitales en tiempo real</p>
+
+        <div class="editor-section">
+            <div class="canvas-container">
+                <canvas id="canvas"></canvas>
+                <div id="uploadPrompt" class="upload-prompt">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                        <polyline points="17 8 12 3 7 8"></polyline>
+                        <line x1="12" y1="3" x2="12" y2="15"></line>
+                    </svg>
+                    <p><strong>Sube una imagen</strong><br>o prueba con la imagen de ejemplo</p>
+                </div>
+            </div>
+
+            <div class="controls">
+                <div class="control-group">
+                    <div class="control-label">
+                        <span>✨ Brillo</span>
+                        <span class="control-value" id="brightnessValue">100%</span>
+                    </div>
+                    <input type="range" id="brightness" min="0" max="200" value="100">
+                </div>
+
+                <div class="control-group">
+                    <div class="control-label">
+                        <span>🎭 Contraste</span>
+                        <span class="control-value" id="contrastValue">100%</span>
+                    </div>
+                    <input type="range" id="contrast" min="0" max="200" value="100">
+                </div>
+
+                <div class="control-group">
+                    <div class="control-label">
+                        <span>🌈 Saturación</span>
+                        <span class="control-value" id="saturationValue">100%</span>
+                    </div>
+                    <input type="range" id="saturation" min="0" max="200" value="100">
+                </div>
+
+                <div class="control-group">
+                    <div class="control-label">
+                        <span>🔄 Tono</span>
+                        <span class="control-value" id="hueValue">0°</span>
+                    </div>
+                    <input type="range" id="hue" min="0" max="360" value="0">
+                </div>
+
+                <div class="control-group">
+                    <div class="control-label">
+                        <span>🌫️ Blur</span>
+                        <span class="control-value" id="blurValue">0px</span>
+                    </div>
+                    <input type="range" id="blur" min="0" max="10" value="0" step="0.5">
+                </div>
+            </div>
+        </div>
+
+        <div class="presets">
+            <button class="preset-btn" onclick="applyPreset('vintage')">📸 Vintage</button>
+            <button class="preset-btn" onclick="applyPreset('bw')">⚫ B&N</button>
+            <button class="preset-btn" onclick="applyPreset('vivid')">🔥 Vívido</button>
+            <button class="preset-btn" onclick="applyPreset('cold')">❄️ Frío</button>
+            <button class="preset-btn" onclick="applyPreset('warm')">☀️ Cálido</button>
+        </div>
+
+        <div class="buttons">
+            <button class="btn-primary" onclick="document.getElementById('fileInput').click()">
+                📁 Cargar Imagen
+            </button>
+            <button class="btn-secondary" onclick="loadSampleImage()">
+                🖼️ Imagen Ejemplo
+            </button>
+            <button class="btn-secondary" onclick="resetFilters()">
+                🔄 Restablecer
+            </button>
+            <button class="btn-success" onclick="downloadImage()">
+                💾 Descargar
+            </button>
+        </div>
+
+        <input type="file" id="fileInput" accept="image/*">
+
+        <div class="info-box">
+            <h3>💡 ¿Sabías qué?</h3>
+            <p>Antes de la era digital, aplicar efectos como estos tomaba horas en un cuarto oscuro con químicos y técnicas especializadas. Hoy, con tecnología web, puedes aplicar filtros instantáneamente. ¡Esta es la revolución del diseño gráfico digital!</p>
+        </div>
+
+        <div class="signature">
+            <div class="title">Laboratorio creado con ❤️ para</div>
+            <div class="brand">
+                <span class="sparkle">✨</span> Create Camps 2 <span class="sparkle">✨</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        const fileInput = document.getElementById('fileInput');
+        const uploadPrompt = document.getElementById('uploadPrompt');
+        let originalImage = null;
+
+        // Controles
+        const controls = {
+            brightness: document.getElementById('brightness'),
+            contrast: document.getElementById('contrast'),
+            saturation: document.getElementById('saturation'),
+            hue: document.getElementById('hue'),
+            blur: document.getElementById('blur')
+        };
+
+        // Event listeners para actualizar valores
+        controls.brightness.addEventListener('input', (e) => {
+            document.getElementById('brightnessValue').textContent = e.target.value + '%';
+            applyFilters();
+        });
+
+        controls.contrast.addEventListener('input', (e) => {
+            document.getElementById('contrastValue').textContent = e.target.value + '%';
+            applyFilters();
+        });
+
+        controls.saturation.addEventListener('input', (e) => {
+            document.getElementById('saturationValue').textContent = e.target.value + '%';
+            applyFilters();
+        });
+
+        controls.hue.addEventListener('input', (e) => {
+            document.getElementById('hueValue').textContent = e.target.value + '°';
+            applyFilters();
+        });
+
+        controls.blur.addEventListener('input', (e) => {
+            document.getElementById('blurValue').textContent = e.target.value + 'px';
+            applyFilters();
+        });
+
+        // Cargar imagen desde archivo
+        fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    loadImage(event.target.result);
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        function loadImage(src) {
+            const img = new Image();
+            img.onload = () => {
+                originalImage = img;
+                canvas.width = img.width;
+                canvas.height = img.height;
+                uploadPrompt.style.display = 'none';
+                canvas.style.display = 'block';
+                applyFilters();
+            };
+            img.src = src;
+        }
+
+        function loadSampleImage() {
+            // Crear una imagen de muestra colorida
+            const tempCanvas = document.createElement('canvas');
+            tempCanvas.width = 800;
+            tempCanvas.height = 600;
+            const tempCtx = tempCanvas.getContext('2d');
+            
+            // Crear gradiente
+            const gradient = tempCtx.createLinearGradient(0, 0, 800, 600);
+            gradient.addColorStop(0, '#667eea');
+            gradient.addColorStop(0.5, '#764ba2');
+            gradient.addColorStop(1, '#f093fb');
+            tempCtx.fillStyle = gradient;
+            tempCtx.fillRect(0, 0, 800, 600);
+            
+            // Agregar formas
+            tempCtx.fillStyle = 'rgba(255, 255, 255, 0.2)';
+            tempCtx.beginPath();
+            tempCtx.arc(200, 200, 150, 0, Math.PI * 2);
+            tempCtx.fill();
+            
+            tempCtx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+            tempCtx.fillRect(400, 300, 300, 200);
+            
+            tempCtx.font = 'bold 48px sans-serif';
+            tempCtx.fillStyle = 'white';
+            tempCtx.textAlign = 'center';
+            tempCtx.fillText('Diseño Digital', 400, 300);
+            
+            loadImage(tempCanvas.toDataURL());
+        }
+
+        function applyFilters() {
+            if (!originalImage) return;
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            const filterString = `
+                brightness(${controls.brightness.value}%)
+                contrast(${controls.contrast.value}%)
+                saturate(${controls.saturation.value}%)
+                hue-rotate(${controls.hue.value}deg)
+                blur(${controls.blur.value}px)
+            `;
+            
+            ctx.filter = filterString;
+            ctx.drawImage(originalImage, 0, 0);
+        }
+
+        function applyPreset(preset) {
+            const presets = {
+                vintage: { brightness: 110, contrast: 130, saturation: 80, hue: 20, blur: 0.5 },
+                bw: { brightness: 100, contrast: 120, saturation: 0, hue: 0, blur: 0 },
+                vivid: { brightness: 110, contrast: 140, saturation: 150, hue: 0, blur: 0 },
+                cold: { brightness: 100, contrast: 110, saturation: 120, hue: 200, blur: 0 },
+                warm: { brightness: 110, contrast: 110, saturation: 120, hue: 30, blur: 0 }
+            };
+
+            const values = presets[preset];
+            controls.brightness.value = values.brightness;
+            controls.contrast.value = values.contrast;
+            controls.saturation.value = values.saturation;
+            controls.hue.value = values.hue;
+            controls.blur.value = values.blur;
+
+            document.getElementById('brightnessValue').textContent = values.brightness + '%';
+            document.getElementById('contrastValue').textContent = values.contrast + '%';
+            document.getElementById('saturationValue').textContent = values.saturation + '%';
+            document.getElementById('hueValue').textContent = values.hue + '°';
+            document.getElementById('blurValue').textContent = values.blur + 'px';
+
+            applyFilters();
+        }
+
+        function resetFilters() {
+            controls.brightness.value = 100;
+            controls.contrast.value = 100;
+            controls.saturation.value = 100;
+            controls.hue.value = 0;
+            controls.blur.value = 0;
+
+            document.getElementById('brightnessValue').textContent = '100%';
+            document.getElementById('contrastValue').textContent = '100%';
+            document.getElementById('saturationValue').textContent = '100%';
+            document.getElementById('hueValue').textContent = '0°';
+            document.getElementById('blurValue').textContent = '0px';
+
+            applyFilters();
+        }
+
+        function downloadImage() {
+            if (!originalImage) {
+                alert('Por favor carga una imagen primero');
+                return;
+            }
+
+            const link = document.createElement('a');
+            link.download = 'imagen-editada.png';
+            link.href = canvas.toDataURL();
+            link.click();
+        }
+
+        // Cargar imagen de ejemplo al inicio
+        loadSampleImage();
+    </script>
+</body>
+</html>
